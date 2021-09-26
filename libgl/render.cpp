@@ -1,5 +1,7 @@
 
 #include "render.h"
+#include "../common/memory.h"
+
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 
@@ -32,18 +34,40 @@ float camera_speed = 1.0f;
 
 GLuint vboId = 0;
 
-float *points;
-
-int points_number = pow(2, 21);
 
 
 
+// void GLUTinit(int argc, char** argv)
+// {
+//     srand( (unsigned)time(NULL) );
+//     points = (double*)malloc(sizeof(double)*points_number*3);
 
-void GLUTinit(int argc, char** argv)
+//     glutInit(&argc, argv);
+//     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+//     glutInitWindowSize(screenWidth, screenHeight);
+//     glDisable(GL_DEPTH_TEST);
+//     glutCreateWindow("DOTS");
+//     glViewport(0, 0, screenWidth, screenHeight);
+//     gluPerspective(60.0, (GLfloat)screenWidth / (GLfloat) screenHeight, 0.1, 10000.0);
+    
+//     glutDisplayFunc(display);
+//     glutTimerFunc(33, timer, 33);                 // redraw only every given millisec
+//     glutReshapeFunc(reshape);
+//     glutKeyboardFunc(keyboard);
+//     glutMouseFunc(mouse);
+//     glutMotionFunc(motion);
+
+//     glGenBuffers(1, &vboId);
+//     glBindBuffer(GL_ARRAY_BUFFER, vboId);
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(double)*points_number, 0, GL_DYNAMIC_DRAW);
+//     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double)*points_number, points); 
+//     glBindBuffer(GL_ARRAY_BUFFER, 0);
+// }
+
+
+void GLUTinit_sequential(int argc, char** argv)
 {
-    srand( (unsigned)time(NULL) );
-    points = (float*)malloc(sizeof(float)*points_number*3);
-
+    
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
     glutInitWindowSize(screenWidth, screenHeight);
@@ -52,7 +76,7 @@ void GLUTinit(int argc, char** argv)
     glViewport(0, 0, screenWidth, screenHeight);
     gluPerspective(60.0, (GLfloat)screenWidth / (GLfloat) screenHeight, 0.1, 10000.0);
     
-    glutDisplayFunc(display);
+    glutDisplayFunc(display_sequential_exhaustive);
     glutTimerFunc(33, timer, 33);                 // redraw only every given millisec
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
@@ -61,20 +85,20 @@ void GLUTinit(int argc, char** argv)
 
     glGenBuffers(1, &vboId);
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*points_number, 0, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*points_number, points); 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(double)*n, 0, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double)*n, bodies_position); 
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 }
 
 void compute(){
-    for(int i=0; i<points_number; i++){
+    for(int i=0; i<n; i++){
         int index = i*3;
         for(int j=0; j<3; j++){
             int num = rand()%64;
             if(num%2==0){
-                points[index+j] = num;
+                bodies_position[index+j] = num;
             } else {
-                points[index+j] = -num;
+                bodies_position[index+j] = -num;
             }
 
         }
@@ -82,21 +106,21 @@ void compute(){
 }
 
 
-void display()
+void display_sequential_exhaustive()
 {
-    compute();
+    // compute();
     
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPointSize(1);
     glMatrixMode(GL_MODELVIEW);
     gluLookAt(xcam,ycam, zcam, xcam+lxcam,ycam+lycam,zcam+lzcam, 0.0f,1.0f,0.0f);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*points_number, 0, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*points_number, points);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(double)*n, 0, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(double)*n, bodies_position);
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glVertexPointer(3, GL_DOUBLE, 0, 0);
     glEnableClientState(GL_VERTEX_ARRAY);
-    glDrawArrays(GL_POINTS, 0, points_number);
+    glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
     glutSwapBuffers();
     glutPostRedisplay();
