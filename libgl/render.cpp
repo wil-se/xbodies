@@ -1,6 +1,7 @@
 
 #include "render.h"
 #include "../common/memory.h"
+#include "../sequential/sequential-exhaustive.h"
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
@@ -64,6 +65,12 @@ GLuint vboId = 0;
 //     glBindBuffer(GL_ARRAY_BUFFER, 0);
 // }
 
+void run_sequential_exhaustive(int argc, char** argv){
+    initialize();
+    GLUTinit_sequential(argc, argv);
+    glutMainLoop();
+};
+
 
 void GLUTinit_sequential(int argc, char** argv)
 {
@@ -108,11 +115,11 @@ void compute(){
 
 void display_sequential_exhaustive()
 {
-    // compute();
+    compute_sequential_exhaustive();
     
     glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPointSize(1);
+    glPointSize(2);
     glMatrixMode(GL_MODELVIEW);
     gluLookAt(xcam,ycam, zcam, xcam+lxcam,ycam+lycam,zcam+lzcam, 0.0f,1.0f,0.0f);
     glBufferData(GL_ARRAY_BUFFER, sizeof(double)*n, 0, GL_DYNAMIC_DRAW);
